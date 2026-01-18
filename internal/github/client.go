@@ -8,6 +8,11 @@ import (
 	"strings"
 )
 
+// GitHubSearcher interface for mocks
+type GitHubSearcher interface {
+	Search(ctx context.Context, term, user string) ([]SearchResult, error)
+}
+
 type Client struct {
 	httpClient *http.Client
 	token      string

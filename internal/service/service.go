@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"log"
+	"time"
 
 	gs "github.com/bhatpriyanka8/github-search-service/internal/gen/githubsearch"
 	github "github.com/bhatpriyanka8/github-search-service/internal/github"
@@ -24,13 +26,21 @@ func NewGitHubSearchService(ghClient *github.Client) *GitHubSearchService {
 
 // Search implementation for doing github files/repos search
 func (s *GitHubSearchService) Search(ctx context.Context, req *gs.SearchRequest) (*gs.SearchResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	log.Printf(
+		"GitHub search request term=%q user=%q",
+		req.GetSearchTerm(),
+		req.GetUser(),
+	)
 	if req.GetSearchTerm() == "" {
 		return nil, status.Error(codes.InvalidArgument, "search_term missing, please provide")
 	}
 	results, err := s.githubClient.Search(ctx, req.GetSearchTerm(), req.GetUser())
 
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "github search call failed: %v", err)
+		return nil, mapAndConvertError(err)
 	}
 
 	resp := &gs.SearchResponse{}
