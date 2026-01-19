@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 )
 
 // GitHubSearcher interface
@@ -79,9 +80,21 @@ func (c *Client) Search(
 		req.Header.Set(key, value)
 	}
 
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, err
+	var resp *http.Response
+	var err error
+	retryErr := Retry(ctx, 3, 100*time.Millisecond, func() error {
+		resp, err = c.httpClient.Do(req)
+		if err != nil {
+			return err
+		}
+		if resp.StatusCode >= 500 {
+			resp.Body.Close()
+			return fmt.Errorf("github api returned status code %d: %s", resp.StatusCode, http.StatusText(resp.StatusCode))
+		}
+		return nil
+	})
+	if retryErr != nil {
+		return nil, retryErr
 	}
 	defer resp.Body.Close()
 
