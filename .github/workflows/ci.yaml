@@ -1,7 +1,8 @@
 name: CI
 
 on:
-  push:
+  branches:
+      - main
   pull_request:
 
 jobs:
@@ -20,6 +21,9 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go-version }}
+      
+      - name: Generate mocks
+        run: go generate ./...
       
       - name: Format check
         run: |
