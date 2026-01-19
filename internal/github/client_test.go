@@ -114,7 +114,7 @@ func TestClient_Search(t *testing.T) {
 			// Setup mock server
 			mockHttp := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(tt.statusCode)
-				w.Write([]byte(tt.body))
+				_, _ = w.Write([]byte(tt.body))
 			}))
 			defer mockHttp.Close()
 			httpClient := mockHttp.Client()
