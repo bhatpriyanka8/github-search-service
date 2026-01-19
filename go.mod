@@ -3,6 +3,7 @@ module github.com/bhatpriyanka8/github-search-service
 go 1.24.11
 
 require (
+	github.com/golang/mock v1.6.0
 	google.golang.org/grpc v1.78.0
 	google.golang.org/protobuf v1.36.10
 )

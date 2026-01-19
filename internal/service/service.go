@@ -13,12 +13,12 @@ import (
 
 // GithubSearchService implements grpc service
 type GitHubSearchService struct {
-	githubClient *github.Client
+	githubClient github.GitHubSearcher
 	gs.UnimplementedGithubSearchServiceServer
 }
 
 // NewGitHubSearchService creates a new GitHubSearchService instance
-func NewGitHubSearchService(ghClient *github.Client) *GitHubSearchService {
+func NewGitHubSearchService(ghClient github.GitHubSearcher) *GitHubSearchService {
 	return &GitHubSearchService{
 		githubClient: ghClient,
 	}

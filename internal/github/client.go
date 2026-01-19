@@ -1,3 +1,4 @@
+//go:generate mockgen -source ./client.go -package github -destination ./client_mock.go
 package github
 
 import (
@@ -8,7 +9,7 @@ import (
 	"strings"
 )
 
-// GitHubSearcher interface for mocks
+// GitHubSearcher interface
 type GitHubSearcher interface {
 	Search(ctx context.Context, term, user string) ([]SearchResult, error)
 }
@@ -25,7 +26,7 @@ type SearchResult struct {
 }
 
 // NewClient creates a Github Client instance
-func NewClient(httpClient *http.Client, token string) *Client {
+func NewClient(httpClient *http.Client, token string) GitHubSearcher {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
