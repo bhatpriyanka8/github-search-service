@@ -14,7 +14,10 @@ func Retry(ctx context.Context, maxTries int, waitTime time.Duration, f func() e
 		if err == nil {
 			return nil
 		}
-		// failure
+		// fail fast on rate limit
+		if err.Error() == "rate limit exceeded" {
+			return err
+		}
 		log.Printf("attempt %d/%d failed: %v", i+1, maxTries, err)
 		if ctx.Err() != nil {
 			return ctx.Err()

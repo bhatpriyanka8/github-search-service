@@ -87,9 +87,10 @@ func (c *Client) Search(
 		if err != nil {
 			return err
 		}
-		if resp.StatusCode >= 500 {
+		// Fail fast on rate limit (403)
+		if resp.StatusCode == http.StatusForbidden {
 			resp.Body.Close()
-			return fmt.Errorf("github api returned status code %d: %s", resp.StatusCode, http.StatusText(resp.StatusCode))
+			return fmt.Errorf("rate limit exceeded")
 		}
 		return nil
 	})

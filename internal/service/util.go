@@ -17,7 +17,7 @@ func mapAndConvertError(err error) error {
 	}
 
 	// rate limit errors (403)
-	if strings.Contains(errMsg, "status code 403") {
+	if strings.Contains(errMsg, "rate limit exceeded") || strings.Contains(errMsg, "status code 403") {
 		return status.Error(codes.ResourceExhausted, "github api rate limit exceeded, please try again after a minute")
 	}
 

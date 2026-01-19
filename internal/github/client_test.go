@@ -99,6 +99,14 @@ func TestClient_Search(t *testing.T) {
 			ctxCancel:  true,
 			wantErr:    true,
 		},
+		{
+			name:       "rate limit exceeded",
+			statusCode: 403,
+			body:       `rate limit exceeded`,
+			term:       "grpc",
+			user:       "testuser",
+			wantErr:    true,
+		},
 	}
 
 	for _, tt := range tests {
