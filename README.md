@@ -101,7 +101,7 @@ go test ./...
 ## Design notes & trade-offs
 
 - Pagination is not implemented yet; the service returns the first page of results.
-- GitHub rate limiting is respected; no retries or backoff are implemented.
+- GitHub rate limiting is respected. Respective Error is shown.
 - Context timeouts are applied to downstream GitHub API calls.
 - Authentication is supported via environment variable (GITHUB_TOKEN).
 
