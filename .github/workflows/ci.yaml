@@ -23,6 +23,9 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       
+      - name: Install mockgen
+        run: go install github.com/golang/mock/mockgen@latest
+      
       - name: Generate mocks
         run: go generate ./...
       
