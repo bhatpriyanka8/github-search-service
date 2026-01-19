@@ -29,7 +29,11 @@ func main() {
 
 	// create service
 	token := os.Getenv("GITHUB_TOKEN")
-	githubClient := github.NewClient(nil, token)
+	baseURL := os.Getenv("GITHUB_API_URL")
+	if baseURL == "" {
+		baseURL = "https://api.github.com"
+	}
+	githubClient := github.NewClient(nil, token, baseURL)
 	searchService := service.NewGitHubSearchService(githubClient)
 
 	// register service with grpc server

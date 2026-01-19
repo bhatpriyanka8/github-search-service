@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"strings"
 
 	"google.golang.org/grpc/codes"
@@ -8,11 +9,18 @@ import (
 )
 
 func mapAndConvertError(err error) error {
-	if strings.Contains(err.Error(), "status code 401") {
-		return status.Error(codes.PermissionDenied, "unauthorized GitHub API request, export valid github token")
+	errMsg := err.Error()
+
+	// authentication errors (401)
+	if strings.Contains(errMsg, "status code 401") {
+		return status.Error(codes.PermissionDenied, "authentication failed: please set GITHUB_TOKEN environment variable with a valid personal access token")
 	}
-	if strings.Contains(err.Error(), "status code 403") {
-		return status.Error(codes.ResourceExhausted, "GitHub rate limit exceeded, try after a minute")
+
+	// rate limit errors (403)
+	if strings.Contains(errMsg, "status code 403") {
+		return status.Error(codes.ResourceExhausted, "github api rate limit exceeded, please try again after a minute")
 	}
-	return status.Error(codes.Internal, "GitHub search failed due to internal error")
+
+	// internal error
+	return status.Error(codes.Internal, fmt.Sprintf("github search failed: %s", errMsg))
 }

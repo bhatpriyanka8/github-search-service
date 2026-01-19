@@ -17,6 +17,7 @@ type GitHubSearcher interface {
 type Client struct {
 	httpClient *http.Client
 	token      string
+	baseURL    string
 }
 
 // SearchResult is the result returned by the github client
@@ -26,17 +27,19 @@ type SearchResult struct {
 }
 
 // NewClient creates a Github Client instance
-func NewClient(httpClient *http.Client, token string) GitHubSearcher {
+func NewClient(httpClient *http.Client, token string, baseURL string) GitHubSearcher {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 	return &Client{
 		httpClient: httpClient,
 		token:      token,
+		baseURL:    baseURL,
 	}
 }
 
 // Search searches GitHub code using the provided search term and user if given
+// Returns an empty response if no results are found
 func (c *Client) Search(
 	ctx context.Context,
 	term string,
@@ -44,7 +47,7 @@ func (c *Client) Search(
 ) ([]SearchResult, error) {
 
 	var builder strings.Builder
-	var url = "https://api.github.com/search/code"
+	url := c.baseURL + "/search/code"
 	headers := map[string]string{
 		"Accept":     "application/vnd.github.v3+json",
 		"User-Agent": "github-search-service",
@@ -83,16 +86,22 @@ func (c *Client) Search(
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf(" github api returned status code %d", resp.StatusCode)
+		return nil, fmt.Errorf("github api returned status code %d: %s", resp.StatusCode, http.StatusText(resp.StatusCode))
 	}
 
 	var githubResp githubSearchResponse
 
 	err = json.NewDecoder(resp.Body).Decode(&githubResp)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to decode github response: %w", err)
 	}
 
+	// if no items found, return empty
+	if len(githubResp.Items) == 0 {
+		return []SearchResult{}, nil
+	}
+
+	// prepare the results response
 	results := make([]SearchResult, 0, len(githubResp.Items))
 
 	for _, item := range githubResp.Items {
